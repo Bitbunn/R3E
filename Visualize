@@ -86,7 +86,7 @@ def update(frame):
 start_time = time.time()
 
 # Create an animation that updates the plot
-ani = FuncAnimation(fig, update, init_func=init, blit=True, interval=100)
+ani = FuncAnimation(fig, update, init_func=init, blit=True, interval=100, save_count=100)
 
 plt.tight_layout()
 plt.show()
