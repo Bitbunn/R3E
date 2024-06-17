@@ -7,15 +7,12 @@ shared_memory.update_offsets()
 
 while True:
     try:
-        # Retrieve raw data from shared memory
+        # Check if we can access the shared memory
         data = shared_memory.get_value('Player')
-        
-        # Ensure data is not None and print its type and structure
         if data is None:
             print("Failed to retrieve data. Data is None.")
         else:
-            print(f"Raw data type: {type(data)}")
-            print(f"Raw data: {data}")
+            print(f"Data successfully retrieved: {data}")
             break  # Exit loop after one successful read for inspection
             
     except Exception as e:
