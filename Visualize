@@ -1,26 +1,28 @@
-from r3e_api import r3esharedmemory
+from r3e_api import R3ESharedMemory
 import time
 
 # Initialize shared memory
-shared_memory = r3esharedmemory()
+shared_memory = R3ESharedMemory()
 shared_memory.update_offsets()
 
 while True:
     try:
+        # Retrieve raw data from shared memory
         data = shared_memory.get_value('Player')
         if data is None:
             print("Failed to retrieve data. Data is None.")
         else:
-            # Print detailed information about the data
-            print(f"Data type: {type(data)}")
-            print(f"Data content: {data}")
+            # Print the raw data and its type for inspection
+            print(f"Retrieved raw data: {data}")
+            print(f"Raw data type: {type(data)}")
 
-            # If data is a dictionary, print keys and types
+            # Check if the data is a dictionary
             if isinstance(data, dict):
+                # Print all keys and their types in the dictionary
                 for key, value in data.items():
                     print(f"Key: {key}, Value: {value}, Type: {type(value)}")
-                
-                # Attempt to access specific keys
+
+                # Try to access the 'Speed' key
                 if 'Speed' in data:
                     speed = data['Speed']
                     print(f"Speed: {speed}")
