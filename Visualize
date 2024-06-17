@@ -1,22 +1,26 @@
-from r3e_api import r3esharedmemory
+from r3e_api import R3ESharedMemory
 import time
 
 # Initialize shared memory
-shared_memory = r3esharedmemory()
+shared_memory = R3ESharedMemory()
 shared_memory.update_offsets()
 
 while True:
     try:
         data = shared_memory.get_value('Player')
         if data is None:
-            print("Failed to retrieve data.")
+            print("Failed to retrieve data. Data is None.")
         else:
-            # Ensure data structure is correct and key exists
-            if 'Speed' not in data:
-                print(f"'Speed' key not found in data: {data}")
+            print(f"Retrieved data: {data}")
+            # Check if the data is a dictionary and contains the 'Speed' key
+            if isinstance(data, dict):
+                if 'Speed' in data:
+                    speed = data['Speed']
+                    print(f"Speed: {speed}")
+                else:
+                    print("The 'Speed' key is not found in the data.")
             else:
-                speed = data['Speed']  # Accessing speed from player data
-                print(f"Speed: {speed}")
+                print(f"Unexpected data type: {type(data)}. Data: {data}")
 
     except TypeError as e:
         print(f"TypeError: {e}")
