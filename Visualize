@@ -14,12 +14,13 @@ class R3EStruct(ctypes.Structure):
 
 # Access the shared memory
 def get_shared_memory():
-    return ctypes.windll.kernel32.MapViewOfFile(
-        ctypes.windll.kernel32.OpenFileMappingA(
-            0xF001F, False, "Local\\$Race$"
-        ),
-        0x0004, 0, 0, ctypes.sizeof(R3EStruct)
-    )
+    handle = ctypes.windll.kernel32.OpenFileMappingA(0xF001F, False, "Local\\$Race$")
+    if handle == 0:
+        raise ValueError("Could not open file mapping.")
+    address = ctypes.windll.kernel32.MapViewOfFile(handle, 0x0004, 0, 0, ctypes.sizeof(R3EStruct))
+    if address == 0:
+        raise ValueError("Could not map view of file.")
+    return address
 
 # Initialize shared memory
 shared_memory = get_shared_memory()
@@ -59,9 +60,12 @@ def init():
 
 # Function to update the plot
 def update(frame):
+    global data
     current_time = time.time() - start_time
     speed = data.player[1]  # Example: accessing speed from player data
     wheel_slip = max(data.wheels)  # Example: max wheel slip
+
+    print(f"Time: {current_time}, Speed: {speed}, Wheel Slip: {wheel_slip}")  # Debug print
 
     times.append(current_time)
     speeds.append(speed)
