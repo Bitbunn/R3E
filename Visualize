@@ -10,8 +10,8 @@ except Exception as e:
     print(f"Failed to initialize shared memory: {e}")
     exit(1)
 
-# Function to print detailed data information
 def print_data(data):
+    """Function to print detailed data information"""
     if data is None:
         print("Failed to retrieve data. Data is None.")
     else:
@@ -26,7 +26,6 @@ def print_data(data):
             print("Data is not a dictionary.")
             print(f"Raw data: {data}")
 
-# Attempt to read raw data from shared memory
 while True:
     try:
         data = shared_memory.get_value('Player')
