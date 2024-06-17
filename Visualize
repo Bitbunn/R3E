@@ -1,34 +1,10 @@
-import ctypes
-import time
+from r3e import R3ESharedMemory
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-
-# Define the shared memory structure (based on r3e-api's shared memory layout)
-class R3EStruct(ctypes.Structure):
-    _fields_ = [
-        # Define fields based on actual shared memory structure
-        ("version", ctypes.c_uint32),
-        ("player", ctypes.c_float * 10),  # Placeholder, replace with actual structure
-        ("wheels", ctypes.c_float * 4),   # Placeholder, replace with actual structure
-    ]
-
-# Access the shared memory
-def get_shared_memory():
-    handle = ctypes.windll.kernel32.OpenFileMappingA(0xF001F, False, "Local\\$Race$")
-    if handle == 0:
-        raise ValueError("Could not open file mapping.")
-    address = ctypes.windll.kernel32.MapViewOfFile(handle, 0x0004, 0, 0, ctypes.sizeof(R3EStruct))
-    if address == 0:
-        raise ValueError("Could not map view of file.")
-    return address
+import time
 
 # Initialize shared memory
-try:
-    shared_memory = get_shared_memory()
-    data = R3EStruct.from_address(shared_memory)
-except ValueError as e:
-    print(f"Error accessing shared memory: {e}")
-    exit(1)
+r3e = R3ESharedMemory()
 
 # Lists to store data for plotting
 times = []
@@ -64,33 +40,30 @@ def init():
 
 # Function to update the plot
 def update(frame):
-    global data
-    current_time = time.time() - start_time
-    try:
-        speed = data.player[1]  # Example: accessing speed from player data
-        wheel_slip = max(data.wheels)  # Example: max wheel slip
-    except Exception as e:
-        print(f"Error reading data: {e}")
-        return line1, line2
+    data = r3e.update()
+    if data:
+        current_time = time.time() - start_time
+        speed = data['player']['speed']  # Adjust based on actual structure
+        wheel_slip = max(data['wheels']['slip'])  # Adjust based on actual structure
 
-    print(f"Time: {current_time}, Speed: {speed}, Wheel Slip: {wheel_slip}")  # Debug print
+        print(f"Time: {current_time}, Speed: {speed}, Wheel Slip: {wheel_slip}")  # Debug print
 
-    times.append(current_time)
-    speeds.append(speed)
-    wheel_slips.append(wheel_slip)
+        times.append(current_time)
+        speeds.append(speed)
+        wheel_slips.append(wheel_slip)
 
-    # Keep only the last 100 data points for a smooth real-time graph
-    times_trimmed = times[-100:]
-    speeds_trimmed = speeds[-100:]
-    wheel_slips_trimmed = wheel_slips[-100:]
+        # Keep only the last 100 data points for a smooth real-time graph
+        times_trimmed = times[-100:]
+        speeds_trimmed = speeds[-100:]
+        wheel_slips_trimmed = wheel_slips[-100:]
 
-    line1.set_data(times_trimmed, speeds_trimmed)
-    line2.set_data(times_trimmed, wheel_slips_trimmed)
+        line1.set_data(times_trimmed, speeds_trimmed)
+        line2.set_data(times_trimmed, wheel_slips_trimmed)
 
-    ax1.set_xlim(times_trimmed[0], times_trimmed[-1])
-    ax2.set_xlim(times_trimmed[0], times_trimmed[-1])
-    ax1.set_ylim(min(speeds_trimmed) - 5, max(speeds_trimmed) + 5)
-    ax2.set_ylim(min(wheel_slips_trimmed) - 0.1, max(wheel_slips_trimmed) + 0.1)
+        ax1.set_xlim(times_trimmed[0], times_trimmed[-1])
+        ax2.set_xlim(times_trimmed[0], times_trimmed[-1])
+        ax1.set_ylim(min(speeds_trimmed) - 5, max(speeds_trimmed) + 5)
+        ax2.set_ylim(min(wheel_slips_trimmed) - 0.1, max(wheel_slips_trimmed) + 0.1)
 
     return line1, line2
 
