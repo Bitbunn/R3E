@@ -12,6 +12,7 @@ while True:
             print("Failed to retrieve data. Data is None.")
         else:
             print(f"Retrieved data: {data}")
+            print(f"Data type: {type(data)}")
             # Check if the data is a dictionary and contains the 'Speed' key
             if isinstance(data, dict):
                 if 'Speed' in data:
