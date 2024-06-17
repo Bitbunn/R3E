@@ -2,11 +2,16 @@ from r3e_api import r3esharedmemory
 import time
 
 # Initialize shared memory
-shared_memory = r3esharedmemory()
-shared_memory.update_offsets()
+try:
+    shared_memory = r3esharedmemory()
+    shared_memory.update_offsets()
+    print("Shared memory initialized successfully.")
+except Exception as e:
+    print(f"Failed to initialize shared memory: {e}")
+    exit(1)
 
+# Function to print detailed data information
 def print_data(data):
-    """ Function to print detailed data information """
     if data is None:
         print("Failed to retrieve data. Data is None.")
     else:
@@ -17,17 +22,13 @@ def print_data(data):
             print("Data is a dictionary.")
             for key, value in data.items():
                 print(f"Key: {key}, Value: {value}, Type: {type(value)}")
-                
-                # Check for the 'Speed' key
-                if key == 'Speed':
-                    print(f"Speed value: {value}")
         else:
             print("Data is not a dictionary.")
             print(f"Raw data: {data}")
 
+# Attempt to read raw data from shared memory
 while True:
     try:
-        # Attempt to read raw data from shared memory
         data = shared_memory.get_value('Player')
         print_data(data)
         break  # Exit loop after one successful read for inspection
