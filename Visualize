@@ -1,0 +1,75 @@
+from r3e import R3ESharedMemory
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+import time
+
+# Initialize shared memory
+r3e = R3ESharedMemory()
+
+# Lists to store data for plotting
+times = []
+speeds = []
+wheel_slips = []
+
+# Create a figure and axis for the plot
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+
+# Initialize lines for speed and wheel slip
+line1, = ax1.plot([], [], label="Speed (m/s)")
+line2, = ax2.plot([], [], label="Wheel Slip")
+
+# Configure the speed plot
+ax1.set_xlim(0, 10)
+ax1.set_ylim(0, 100)
+ax1.set_xlabel("Time (s)")
+ax1.set_ylabel("Speed (m/s)")
+ax1.legend()
+
+# Configure the wheel slip plot
+ax2.set_xlim(0, 10)
+ax2.set_ylim(0, 1)
+ax2.set_xlabel("Time (s)")
+ax2.set_ylabel("Wheel Slip")
+ax2.legend()
+
+# Function to initialize the plot
+def init():
+    line1.set_data([], [])
+    line2.set_data([], [])
+    return line1, line2
+
+# Function to update the plot
+def update(frame):
+    data = r3e.update()
+    if data:
+        current_time = time.time() - start_time
+        speed = data['player']['speed']
+        wheel_slip = max(data['wheels']['slip'])
+
+        times.append(current_time)
+        speeds.append(speed)
+        wheel_slips.append(wheel_slip)
+
+        # Keep only the last 100 data points for a smooth real-time graph
+        times_trimmed = times[-100:]
+        speeds_trimmed = speeds[-100:]
+        wheel_slips_trimmed = wheel_slips[-100:]
+
+        line1.set_data(times_trimmed, speeds_trimmed)
+        line2.set_data(times_trimmed, wheel_slips_trimmed)
+
+        ax1.set_xlim(times_trimmed[0], times_trimmed[-1])
+        ax2.set_xlim(times_trimmed[0], times_trimmed[-1])
+        ax1.set_ylim(min(speeds_trimmed) - 5, max(speeds_trimmed) + 5)
+        ax2.set_ylim(min(wheel_slips_trimmed) - 0.1, max(wheel_slips_trimmed) + 0.1)
+
+    return line1, line2
+
+# Capture the start time
+start_time = time.time()
+
+# Create an animation that updates the plot
+ani = FuncAnimation(fig, update, init_func=init, blit=True, interval=100)
+
+plt.tight_layout()
+plt.show()
