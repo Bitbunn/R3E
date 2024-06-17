@@ -23,8 +23,12 @@ def get_shared_memory():
     return address
 
 # Initialize shared memory
-shared_memory = get_shared_memory()
-data = R3EStruct.from_address(shared_memory)
+try:
+    shared_memory = get_shared_memory()
+    data = R3EStruct.from_address(shared_memory)
+except ValueError as e:
+    print(f"Error accessing shared memory: {e}")
+    exit(1)
 
 # Lists to store data for plotting
 times = []
@@ -62,8 +66,12 @@ def init():
 def update(frame):
     global data
     current_time = time.time() - start_time
-    speed = data.player[1]  # Example: accessing speed from player data
-    wheel_slip = max(data.wheels)  # Example: max wheel slip
+    try:
+        speed = data.player[1]  # Example: accessing speed from player data
+        wheel_slip = max(data.wheels)  # Example: max wheel slip
+    except Exception as e:
+        print(f"Error reading data: {e}")
+        return line1, line2
 
     print(f"Time: {current_time}, Speed: {speed}, Wheel Slip: {wheel_slip}")  # Debug print
 
