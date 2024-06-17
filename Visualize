@@ -1,38 +1,63 @@
-from r3e_api import r3esharedmemory
+from r3e_api import R3ESharedMemory
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 import time
 
 # Initialize shared memory
-try:
-    shared_memory = r3esharedmemory()
-    shared_memory.update_offsets()
-    print("Shared memory initialized successfully.")
-except Exception as e:
-    print(f"Failed to initialize shared memory: {e}")
-    exit(1)
+shared_memory = R3ESharedMemory()
+shared_memory.update_offsets()  # only needed once
 
-def print_data(data):
-    """Function to print detailed data information"""
-    if data is None:
-        print("Failed to retrieve data. Data is None.")
-    else:
-        print(f"Successfully retrieved data: {data}")
-        print(f"Data type: {type(data)}")
-        
-        if isinstance(data, dict):
-            print("Data is a dictionary.")
-            for key, value in data.items():
-                print(f"Key: {key}, Value: {value}, Type: {type(value)}")
-        else:
-            print("Data is not a dictionary.")
-            print(f"Raw data: {data}")
+# Lists to store data for plotting
+times = []
+speeds = []
 
-while True:
-    try:
-        data = shared_memory.get_value('Player')
-        print_data(data)
-        break  # Exit loop after one successful read for inspection
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        break  # Exit loop on error for inspection
+# Create a figure and axis for the plot
+fig, ax = plt.subplots(figsize=(10, 6))
 
-    time.sleep(0.5)
+# Initialize the line for speed
+line, = ax.plot([], [], label="Speed (m/s)")
+
+# Configure the speed plot
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 300)  # Adjust based on expected speed range
+ax.set_xlabel("Time (s)")
+ax.set_ylabel("Speed (m/s)")
+ax.legend()
+
+# Function to initialize the plot
+def init():
+    line.set_data([], [])
+    return line,
+
+# Function to update the plot
+def update(frame):
+    shared_memory.update_buffer()
+    data = shared_memory.get_value('Player')
+
+    if data:
+        current_time = time.time() - start_time
+        speed = data['Speed']  # Accessing speed from player data
+
+        print(f"Time: {current_time}, Speed: {speed}")  # Debug print
+
+        times.append(current_time)
+        speeds.append(speed)
+
+        # Keep only the last 100 data points for a smooth real-time graph
+        times_trimmed = times[-100:]
+        speeds_trimmed = speeds[-100:]
+
+        line.set_data(times_trimmed, speeds_trimmed)
+
+        ax.set_xlim(times_trimmed[0], times_trimmed[-1])
+        ax.set_ylim(min(speeds_trimmed) - 5, max(speeds_trimmed) + 5)
+    return line,
+
+# Capture the start time
+start_time = time.time()
+
+# Create an animation that updates the plot
+ani = FuncAnimation(fig, update, init_func=init, blit=True, interval=100, save_count=100)
+
+plt.tight_layout()
+plt.show()
