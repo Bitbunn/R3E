@@ -35,10 +35,14 @@ def update(frame):
     data = shared_memory.get_value('Player')
 
     if data:
+        print(f"Retrieved data: {data}")  # Debug print
         current_time = time.time() - start_time
-        speed = data['Speed']  # Accessing speed from player data
-
-        print(f"Time: {current_time}, Speed: {speed}")  # Debug print
+        try:
+            speed = data['Speed']  # Accessing speed from player data
+            print(f"Time: {current_time}, Speed: {speed}")  # Debug print
+        except KeyError:
+            print("Key 'Speed' not found in the data. Available keys:", data.keys())
+            return line,
 
         times.append(current_time)
         speeds.append(speed)
