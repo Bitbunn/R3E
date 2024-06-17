@@ -1,8 +1,8 @@
-from r3e_api import R3ESharedMemory
+from r3e_api import r3esharedmemory
 import time
 
 # Initialize shared memory
-shared_memory = R3ESharedMemory()
+shared_memory = r3esharedmemory()
 shared_memory.update_offsets()
 
 while True:
@@ -11,15 +11,21 @@ while True:
         if data is None:
             print("Failed to retrieve data. Data is None.")
         else:
-            print(f"Retrieved data: {data}")
+            # Print detailed information about the data
             print(f"Data type: {type(data)}")
-            # Check if the data is a dictionary and contains the 'Speed' key
+            print(f"Data content: {data}")
+
+            # If data is a dictionary, print keys and types
             if isinstance(data, dict):
+                for key, value in data.items():
+                    print(f"Key: {key}, Value: {value}, Type: {type(value)}")
+                
+                # Attempt to access specific keys
                 if 'Speed' in data:
                     speed = data['Speed']
                     print(f"Speed: {speed}")
                 else:
-                    print("The 'Speed' key is not found in the data.")
+                    print("'Speed' key not found in the data.")
             else:
                 print(f"Unexpected data type: {type(data)}. Data: {data}")
 
