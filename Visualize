@@ -19,7 +19,7 @@ line, = ax.plot([], [], label="Speed (m/s)")
 
 # Configure the speed plot
 ax.set_xlim(0, 10)
-ax.set_ylim(0, 300)  # Adjust based on expected speed range
+ax.set_ylim(0, 100)  # Adjust based on expected speed range
 ax.set_xlabel("Time (s)")
 ax.set_ylabel("Speed (m/s)")
 ax.legend()
@@ -38,8 +38,9 @@ def update(frame):
         print(f"Retrieved data: {data}")  # Debug print
         current_time = time.time() - start_time
         try:
+            # Assuming speed is in meters per second, and velocity is a dictionary
             speed = data['Velocity']['X']  # Accessing speed from player data
-            print(f"Time: {current_time}, Speed: {speed}")  # Debug print
+            print(f"Time: {current_time}, Speed: {speed} m/s")  # Debug print
         except KeyError:
             print("Key 'Velocity' or 'X' not found in the data. Available keys:", data.keys())
             return line,
