@@ -9,19 +9,19 @@ shared_memory.update_offsets()  # only needed once
 
 # Lists to store data for plotting
 times = []
-velocities = []
+speeds = []
 
 # Create a figure and axis for the plot
 fig, ax = plt.subplots(figsize=(10, 6))
 
-# Initialize the line for velocity
-line, = ax.plot([], [], label="Velocity (m/s)")
+# Initialize the line for speed
+line, = ax.plot([], [], label="Speed (m/s)")
 
-# Configure the velocity plot
+# Configure the speed plot
 ax.set_xlim(0, 10)
-ax.set_ylim(0, 300)  # Adjust based on expected velocity range
+ax.set_ylim(0, 300)  # Adjust based on expected speed range
 ax.set_xlabel("Time (s)")
-ax.set_ylabel("Velocity (m/s)")
+ax.set_ylabel("Speed (m/s)")
 ax.legend()
 
 # Function to initialize the plot
@@ -38,23 +38,23 @@ def update(frame):
         print(f"Retrieved data: {data}")  # Debug print
         current_time = time.time() - start_time
         try:
-            velocity = data['Velocity']  # Accessing velocity from player data
-            print(f"Time: {current_time}, Velocity: {velocity}")  # Debug print
+            speed = data['Velocity']['X']  # Accessing speed from player data
+            print(f"Time: {current_time}, Speed: {speed}")  # Debug print
         except KeyError:
-            print("Key 'Velocity' not found in the data. Available keys:", data.keys())
+            print("Key 'Velocity' or 'X' not found in the data. Available keys:", data.keys())
             return line,
 
         times.append(current_time)
-        velocities.append(velocity)
+        speeds.append(speed)
 
         # Keep only the last 100 data points for a smooth real-time graph
         times_trimmed = times[-100:]
-        velocities_trimmed = velocities[-100:]
+        speeds_trimmed = speeds[-100:]
 
-        line.set_data(times_trimmed, velocities_trimmed)
+        line.set_data(times_trimmed, speeds_trimmed)
 
         ax.set_xlim(times_trimmed[0], times_trimmed[-1])
-        ax.set_ylim(min(velocities_trimmed) - 5, max(velocities_trimmed) + 5)
+        ax.set_ylim(min(speeds_trimmed) - 5, max(speeds_trimmed) + 5)
     return line,
 
 # Capture the start time
