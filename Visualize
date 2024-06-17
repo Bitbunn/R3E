@@ -31,14 +31,19 @@ def init():
 
 # Function to update the plot
 def update(frame):
-    try:
-        data = shared_memory.get_value('Player')
-        if data is None:
-            print("Failed to retrieve data.")
-            return line,
+    data = shared_memory.get_value('Player')
+    if data is None:
+        print("Failed to retrieve data.")
+        return line,
 
+    try:
         current_time = time.time() - start_time
-        speed = data['Speed']  # Adjust based on actual structure
+        # Ensure data structure is correct
+        if 'Speed' not in data:
+            print("Speed key not found in data.")
+            return line,
+        
+        speed = data['Speed']  # Accessing speed from player data
 
         print(f"Time: {current_time}, Speed: {speed}")  # Debug print
 
