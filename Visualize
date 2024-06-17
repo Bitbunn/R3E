@@ -1,18 +1,31 @@
-from r3e_api import r3esharedmemory
-import time
+# Step 1: Verify Import
+try:
+    from r3e_api import r3esharedmemory
+    print("Module imported successfully.")
+except ImportError as e:
+    print(f"Failed to import module: {e}")
+    exit(1)
 
-# Initialize shared memory
-shared_memory = r3esharedmemory()
-shared_memory.update_offsets()
+# Step 2: Check Shared Memory Initialization
+try:
+    shared_memory = r3esharedmemory()
+    shared_memory.update_offsets()
+    print("Shared memory initialized successfully.")
+except Exception as e:
+    print(f"Failed to initialize shared memory: {e}")
+    exit(1)
 
+# Step 3: Basic Data Retrieval
 while True:
     try:
-        # Check if we can access the shared memory
+        # Attempt to read raw data from shared memory
         data = shared_memory.get_value('Player')
+        
         if data is None:
             print("Failed to retrieve data. Data is None.")
         else:
-            print(f"Data successfully retrieved: {data}")
+            print(f"Successfully retrieved data: {data}")
+            print(f"Data type: {type(data)}")
             break  # Exit loop after one successful read for inspection
             
     except Exception as e:
