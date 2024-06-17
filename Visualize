@@ -1,64 +1,23 @@
 from r3e_api import r3esharedmemory
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
 import time
 
 # Initialize shared memory
 shared_memory = r3esharedmemory()
 shared_memory.update_offsets()
 
-# Lists to store data for plotting
-times = []
-speeds = []
-
-# Create a figure and axis for the plot
-fig, ax = plt.subplots(figsize=(10, 6))
-
-# Initialize the line for speed
-line, = ax.plot([], [], label="Speed (m/s)")
-
-# Configure the speed plot
-ax.set_xlim(0, 10)
-ax.set_ylim(0, 300)  # Adjust based on expected speed range
-ax.set_xlabel("Time (s)")
-ax.set_ylabel("Speed (m/s)")
-ax.legend()
-
-# Function to initialize the plot
-def init():
-    line.set_data([], [])
-    return line,
-
-# Function to update the plot
-def update(frame):
+while True:
     try:
         data = shared_memory.get_value('Player')
         if data is None:
             print("Failed to retrieve data.")
-            return line,
+        else:
+            # Ensure data structure is correct and key exists
+            if 'Speed' not in data:
+                print(f"'Speed' key not found in data: {data}")
+            else:
+                speed = data['Speed']  # Accessing speed from player data
+                print(f"Speed: {speed}")
 
-        current_time = time.time() - start_time
-        
-        # Ensure data structure is correct and key exists
-        if 'Speed' not in data:
-            print(f"'Speed' key not found in data: {data}")
-            return line,
-
-        speed = data['Speed']  # Accessing speed from player data
-
-        print(f"Time: {current_time}, Speed: {speed}")  # Debug print
-
-        times.append(current_time)
-        speeds.append(speed)
-
-        # Keep only the last 100 data points for a smooth real-time graph
-        times_trimmed = times[-100:]
-        speeds_trimmed = speeds[-100:]
-
-        line.set_data(times_trimmed, speeds_trimmed)
-
-        ax.set_xlim(times_trimmed[0], times_trimmed[-1])
-        ax.set_ylim(min(speeds_trimmed) - 5, max(speeds_trimmed) + 5)
     except TypeError as e:
         print(f"TypeError: {e}")
     except KeyError as e:
@@ -66,13 +25,4 @@ def update(frame):
     except Exception as e:
         print(f"Unexpected error: {e}")
 
-    return line,
-
-# Capture the start time
-start_time = time.time()
-
-# Create an animation that updates the plot
-ani = FuncAnimation(fig, update, init_func=init, blit=True, interval=100, save_count=100)
-
-plt.tight_layout()
-plt.show()
+    time.sleep(0.5)
