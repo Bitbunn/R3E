@@ -1,71 +1,56 @@
-from r3e import R3ESharedMemory
+from r3e_api import r3esharedmemory
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import time
 
 # Initialize shared memory
-r3e = R3ESharedMemory()
+shared_memory = r3esharedmemory()
+shared_memory.update_offsets()
 
 # Lists to store data for plotting
 times = []
 speeds = []
-wheel_slips = []
 
 # Create a figure and axis for the plot
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+fig, ax = plt.subplots(figsize=(10, 6))
 
-# Initialize lines for speed and wheel slip
-line1, = ax1.plot([], [], label="Speed (m/s)")
-line2, = ax2.plot([], [], label="Wheel Slip")
+# Initialize the line for speed
+line, = ax.plot([], [], label="Speed (m/s)")
 
 # Configure the speed plot
-ax1.set_xlim(0, 10)
-ax1.set_ylim(0, 300)  # Adjust based on expected speed range
-ax1.set_xlabel("Time (s)")
-ax1.set_ylabel("Speed (m/s)")
-ax1.legend()
-
-# Configure the wheel slip plot
-ax2.set_xlim(0, 10)
-ax2.set_ylim(0, 1)  # Adjust based on expected wheel slip range
-ax2.set_xlabel("Time (s)")
-ax2.set_ylabel("Wheel Slip")
-ax2.legend()
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 300)  # Adjust based on expected speed range
+ax.set_xlabel("Time (s)")
+ax.set_ylabel("Speed (m/s)")
+ax.legend()
 
 # Function to initialize the plot
 def init():
-    line1.set_data([], [])
-    line2.set_data([], [])
-    return line1, line2
+    line.set_data([], [])
+    return line,
 
 # Function to update the plot
 def update(frame):
-    data = r3e.update()
+    data = shared_memory.get_value('Player')
     if data:
         current_time = time.time() - start_time
-        speed = data['player']['speed']  # Adjust based on actual structure
-        wheel_slip = max(data['wheels']['slip'])  # Adjust based on actual structure
+        speed = data['Speed']  # Adjust based on actual structure
 
-        print(f"Time: {current_time}, Speed: {speed}, Wheel Slip: {wheel_slip}")  # Debug print
+        print(f"Time: {current_time}, Speed: {speed}")  # Debug print
 
         times.append(current_time)
         speeds.append(speed)
-        wheel_slips.append(wheel_slip)
 
         # Keep only the last 100 data points for a smooth real-time graph
         times_trimmed = times[-100:]
         speeds_trimmed = speeds[-100:]
-        wheel_slips_trimmed = wheel_slips[-100:]
 
-        line1.set_data(times_trimmed, speeds_trimmed)
-        line2.set_data(times_trimmed, wheel_slips_trimmed)
+        line.set_data(times_trimmed, speeds_trimmed)
 
-        ax1.set_xlim(times_trimmed[0], times_trimmed[-1])
-        ax2.set_xlim(times_trimmed[0], times_trimmed[-1])
-        ax1.set_ylim(min(speeds_trimmed) - 5, max(speeds_trimmed) + 5)
-        ax2.set_ylim(min(wheel_slips_trimmed) - 0.1, max(wheel_slips_trimmed) + 0.1)
+        ax.set_xlim(times_trimmed[0], times_trimmed[-1])
+        ax.set_ylim(min(speeds_trimmed) - 5, max(speeds_trimmed) + 5)
 
-    return line1, line2
+    return line,
 
 # Capture the start time
 start_time = time.time()
