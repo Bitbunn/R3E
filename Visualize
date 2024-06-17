@@ -3,13 +3,13 @@ import time
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-# Define the R3E shared memory structure
+# Define the shared memory structure (based on r3e-api's shared memory layout)
 class R3EStruct(ctypes.Structure):
     _fields_ = [
-        # Define necessary fields based on the shared memory layout
+        # Define fields based on actual shared memory structure
         ("version", ctypes.c_uint32),
-        ("player", ctypes.c_float * 10),  # Example: player data
-        ("wheels", ctypes.c_float * 4),   # Example: wheel data
+        ("player", ctypes.c_float * 10),  # Placeholder, replace with actual structure
+        ("wheels", ctypes.c_float * 4),   # Placeholder, replace with actual structure
     ]
 
 # Access the shared memory
@@ -59,7 +59,6 @@ def init():
 
 # Function to update the plot
 def update(frame):
-    global data
     current_time = time.time() - start_time
     speed = data.player[1]  # Example: accessing speed from player data
     wheel_slip = max(data.wheels)  # Example: max wheel slip
