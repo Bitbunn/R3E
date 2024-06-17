@@ -32,7 +32,11 @@ def init():
 # Function to update the plot
 def update(frame):
     data = shared_memory.get_value('Player')
-    if data:
+    if data is None:
+        print("Failed to retrieve data.")
+        return line,
+
+    try:
         current_time = time.time() - start_time
         speed = data['Speed']  # Adjust based on actual structure
 
@@ -49,6 +53,8 @@ def update(frame):
 
         ax.set_xlim(times_trimmed[0], times_trimmed[-1])
         ax.set_ylim(min(speeds_trimmed) - 5, max(speeds_trimmed) + 5)
+    except TypeError as e:
+        print(f"TypeError: {e}")
 
     return line,
 
