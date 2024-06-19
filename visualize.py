@@ -4,61 +4,61 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import time
 
-# Initialize shared memory reader
+# Initialisation du lecteur de mémoire partagée
 reader = SharedMemoryReader()
 
-# Lists to store data for plotting
+# Listes pour stocker les données à tracer
 times = []
 speeds = []
 
-# Create a figure and axis for the plot
+# Création d'une figure et d'un axe pour le graphique
 fig, ax = plt.subplots(figsize=(10, 6))
 
-# Initialize the line for speed
-line, = ax.plot([], [], label="Speed (m/s)")
+# Initialisation de la ligne pour la vitesse
+line, = ax.plot([], [], label="Vitesse (m/s)")
 
-# Configure the speed plot
+# Configuration du graphique pour la vitesse
 ax.set_xlim(0, 10)
-ax.set_ylim(0, 300)  # Adjust based on expected speed range
-ax.set_xlabel("Time (s)")
-ax.set_ylabel("Speed (m/s)")
+ax.set_ylim(0, 100)  # Ajuster selon la plage de vitesse attendue
+ax.set_xlabel("Temps (s)")
+ax.set_ylabel("Vitesse (m/s)")
 ax.legend()
 
-# Function to initialize the plot
+# Fonction pour initialiser le graphique
 def init():
     line.set_data([], [])
     return line,
 
-# Function to update the plot
+# Fonction pour mettre à jour le graphique
 def update(frame):
     data = reader.get_player_data()
 
     if data:
         current_time = time.time() - start_time
         try:
-            speed = data['Speed']  # Example, replace with actual key
+            speed = data['Velocity']['X']  # Remplacer par la clé réelle pour la vitesse
         except KeyError:
-            print("Key 'Speed' not found in the data. Available keys:", data.keys())
+            print("Clé 'Velocity' ou 'X' non trouvée dans les données. Clés disponibles :", data.keys())
             return line,
 
         times.append(current_time)
         speeds.append(speed)
 
-        # Keep only the last 100 data points for a smooth real-time graph
+        # Conserver uniquement les 100 derniers points pour un graphique en temps réel fluide
         times_trimmed = times[-100:]
         speeds_trimmed = speeds[-100:]
 
         line.set_data(times_trimmed, speeds_trimmed)
 
         ax.set_xlim(times_trimmed[0], times_trimmed[-1])
-        ax.set_ylim(0, max(speeds_trimmed) + 5)  # Ensure Y-axis starts at 0
+        ax.set_ylim(0, max(speeds_trimmed) + 5)  # S'assurer que l'axe Y commence à 0
     return line,
 
-# Capture the start time
+# Capture du temps de départ
 start_time = time.time()
 
-# Create an animation that updates the plot
-ani = FuncAnimation(fig, update, init_func=init, blit=True, interval=100)  # Interval is in milliseconds
+# Création d'une animation qui met à jour le graphique
+ani = FuncAnimation(fig, update, init_func=init, blit=True, interval=100)  # Intervalle en millisecondes
 
 plt.tight_layout()
 plt.show()
