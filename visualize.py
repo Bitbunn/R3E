@@ -36,6 +36,7 @@ def update(frame):
     if data:
         current_time = time.time() - start_time
         try:
+
             speed = data['Velocity']['X']  # Remplacer par la clé réelle pour la vitesse
         except KeyError:
             print("Clé 'Velocity' ou 'X' non trouvée dans les données. Clés disponibles :", data.keys())
@@ -44,7 +45,7 @@ def update(frame):
         times.append(current_time)
         speeds.append(speed)
 
-        # Conserver uniquement les 100 derniers points pour un graphique en temps réel fluide
+        #les 100 derniers points pour un graphique en temps réel fluide
         times_trimmed = times[-100:]
         speeds_trimmed = speeds[-100:]
 
